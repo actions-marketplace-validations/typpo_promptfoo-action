@@ -1,15 +1,32 @@
 name: 'Test LLM outputs'
-description: 'Automatically run a before/after comparison of edited prompts and posts the result to your Pull Request.'
+description: 'Run promptfoo evaluations on your prompts. Works with pull requests, pushes, and manual triggers (workflow_dispatch).'
 runs:
-  using: 'node16'
+  using: 'node20'
   main: 'dist/index.js'
+# For workflow_dispatch events, you can use the following inputs in your workflow:
+# - inputs.files: Newline-separated list of files to evaluate (optional)
+# - inputs.base: Base branch/commit to compare against (default: HEAD~1) (optional)
+#
+# Example workflow_dispatch configuration:
+# on:
+#   workflow_dispatch:
+#     inputs:
+#       files:
+#         description: 'Files to evaluate (leave empty to auto-detect)'
+#         required: false
+#         type: string
+#       base:
+#         description: 'Base branch/commit to compare against'
+#         required: false
+#         default: 'HEAD~1'
+#         type: string
 inputs:
   github-token:
-    description: 'Github Token, used to add comments to the PR'
+    description: 'Github Token, used to add comments to PRs and write workflow summaries'
     required: true
   prompts:
-    description: 'List of prompt files to watch'
-    required: true
+    description: 'List of prompt files to watch (glob patterns supported, one per line)'
+    required: false
   config:
     description: 'Path to a promptfoo config file'
     required: true
@@ -17,8 +34,101 @@ inputs:
     description: 'Path to cache directory'
     required: false
   openai-api-key:
-    description: 'OpenAI API Key'
+    description: 'OpenAI API Key. Falls back to OPENAI_API_KEY environment variable if not provided.'
     required: false
+  azure-api-key:
+    description: 'Azure API key. Falls back to AZURE_OPENAI_API_KEY environment variable if not provided.'
+    required: false
+  anthropic-api-key:
+    description: 'Anthropic API key. Falls back to ANTHROPIC_API_KEY environment variable if not provided.'
+    required: false
+  huggingface-api-key:
+    description: 'Hugging Face API key. Falls back to HF_API_TOKEN environment variable if not provided.'
+    required: false
+  aws-access-key-id:
+    description: 'AWS Access Key ID. Falls back to AWS_ACCESS_KEY_ID environment variable if not provided.'
+    required: false
+  aws-secret-access-key:
+    description: 'AWS Secret Access Key. Falls back to AWS_SECRET_ACCESS_KEY environment variable if not provided.'
+    required: false
+  replicate-api-key:
+    description: 'Replicate API key. Falls back to REPLICATE_API_KEY environment variable if not provided.'
+    required: false
+  palm-api-key:
+    description: 'Palm API key. Falls back to PALM_API_KEY environment variable if not provided.'
+    required: false
+  vertex-api-key:
+    description: 'Google Vertex API key. Falls back to VERTEX_API_KEY environment variable if not provided.'
+    required: false
+  cohere-api-key:
+    description: 'Cohere API key. Falls back to COHERE_API_KEY environment variable if not provided.'
+    required: false
+  mistral-api-key:
+    description: 'Mistral API key. Falls back to MISTRAL_API_KEY environment variable if not provided.'
+    required: false
+  groq-api-key:
+    description: 'Groq API key. Falls back to GROQ_API_KEY environment variable if not provided.'
+    required: false
+  promptfoo-version:
+    description: 'Version of promptfoo to use'
+    required: false
+    default: 'latest'
+  working-directory:
+    description: 'The working directory to run promptfoo in'
+    required: false
+    default: '.'
+  no-share:
+    description: 'Do not share the promptfoo result'
+    required: false
+    default: 'false'
+  use-config-prompts:
+    description: 'Use prompts from config file'
+    required: false
+    default: 'false'
+  env-files:
+    description: 'Comma-separated list of .env files to load (e.g. ".env,.env.test.local")'
+    required: false
+    default: ''
+  fail-on-threshold:
+    description: 'Fail the action if the evaluation success rate is below this percentage (0-100)'
+    required: false
+    default: ''
+  debug:
+    description: 'Enable debug logging for troubleshooting'
+    required: false
+    default: 'false'
+  max-concurrency:
+    description: 'Maximum number of concurrent API calls (default: 4)'
+    required: false
+    default: '4'
+  no-table:
+    description: 'Run promptfoo with --no-table flag to keep output minimal'
+    required: false
+    default: 'false'
+  no-progress-bar:
+    description: 'Run promptfoo with --no-progress-bar flag to keep output minimal'
+    required: false
+    default: 'false'
+  no-cache:
+    description: 'Run promptfoo with --no-cache flag to avoid reading or writing results to the disk cache'
+    required: false
+    default: 'false'
+  disable-comment:
+    description: 'Disable posting comments to the PR'
+    required: false
+    default: 'false'
+  workflow-files:
+    description: 'Files to evaluate in workflow_dispatch mode (newline-separated list). If not specified, falls back to workflow inputs or auto-detection.'
+    required: false
+    default: ''
+  workflow-base:
+    description: 'Base ref to compare against in workflow_dispatch mode (e.g., main, HEAD~1). If not specified, falls back to workflow inputs or HEAD~1.'
+    required: false
+    default: ''
+  force-run:
+    description: 'Force evaluation to run even if no files changed'
+    required: false
+    default: 'false'
 branding:
   icon: 'box'
   color: 'yellow'

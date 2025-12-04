@@ -97,3 +97,11 @@ Thumbs.db
 # Ignore built ts files
 __tests__/runner/*
 lib/**/*
+
+# Jest cache
+.jest-cache
+
+# Project-specific files
+TODO.md
+issues.md
+test-prompts/
